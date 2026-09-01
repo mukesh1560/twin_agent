@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TWIN AI M1 | Captain</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      --text-main: #1e293b;
+      --text-muted: #475569;
+      --bg-soft: #e0e7ff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-soft);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    /* --- ANIMATED BACKGROUND --- */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: -2;
+      animation: float 10s infinite alternate ease-in-out;
+    }
+    .blob-1 { width: 500px; height: 500px; background: #818cf8; top: -10%; left: -10%; }
+    .blob-2 { width: 600px; height: 600px; background: #c084fc; bottom: -20%; right: -10%; animation-delay: -5s;}
+    .blob-3 { width: 400px; height: 400px; background: #f472b6; top: 40%; left: 40%; animation-duration: 15s;}
+    
+    .bg-interactive {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4), transparent 30%);
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(60px, 60px) scale(1.1); }
+    }
+
+    /* --- CHAT CONTAINER --- */
+    .chat-container {
+      width: 95%;
+      max-width: 900px;
+      height: 90vh;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 30px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    header {
+      padding: 20px 30px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .avatar {
+      width: 55px; height: 55px;
+      background: var(--primary-gradient);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px; font-weight: 600;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .header-info h2 { font-size: 1.25rem; letter-spacing: -0.5px; }
+    .header-info p { font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
+
+    /* --- CHAT BOX --- */
+    #chat-box {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .msg-wrapper { display: flex; width: 100%; animation: fadeInUp 0.4s ease forwards; }
+    .msg-wrapper.user { justify-content: flex-end; }
+    .msg-wrapper.bot { justify-content: flex-start; }
+
+    .msg {
+      max-width: 80%;
+      padding: 16px 22px;
+      border-radius: 22px;
+      font-size: 1rem;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    .msg.user {
+      background: var(--primary-gradient);
+      color: white;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .msg.bot {
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 1);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .msg.error { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+    /* --- INPUT AREA --- */
+    .input-area {
+      padding: 25px 30px;
+      background: rgba(255, 255, 255, 0.3);
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      gap: 15px;
+      align-items: flex-end;
+    }
+
+    textarea {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      padding: 15px 20px;
+      border-radius: 20px;
+      font-family: inherit;
+      font-size: 1rem;
+      resize: none;
+      outline: none;
+      max-height: 150px;
+      transition: all 0.3s;
+    }
+
+    textarea:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+
+    button {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    button:hover { transform: scale(1.08) rotate(-5deg); }
+    button:disabled { filter: grayscale(1); cursor: not-allowed; }
+    button svg { width: 24px; height: 24px; fill: white; }
+
+    /* --- TYPING DOTS --- */
+    .typing { display: flex; gap: 4px; padding: 10px; }
+    .typing span { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-8px); } }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.2); border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="bg-interactive" id="bg-interactive"></div>
+
+  <div class="chat-container">
+    <header>
+      <div class="avatar">M</div>
+      <div class="header-info">
+        <h2>TWIN AI M1</h2>
+        <p><span class="status-dot"></span> Online | Captain AI Active</p>
+      </div>
+    </header>
+
+    <main id="chat-box">
+      <div class="msg-wrapper bot">
+        <div class="msg bot">Hey! I am TWIN AI M1, call me <b>Captain</b>. I have access to Mukeshwaran's memories. What do you want from him?</div>
+      </div>
+    </main>
+
+    <div class="input-area">
+      <textarea id="input" rows="1" placeholder="Ask me something or type 'Remember this: ...'"></textarea>
+      <button id="send">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const bgInteractive = document.getElementById('bg-interactive');
+    const chatBox = document.getElementById('chat-box');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('send');
+    
+    // Background interaction
+    document.addEventListener('mousemove', (e) => {
+      bgInteractive.style.background = `radial-gradient(circle at ${e.clientX}px ${e.clientY}px, rgba(255, 255, 255, 0.6), transparent 25%)`;
+    });
+
+    // Auto-resize textarea
+    input.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    sendBtn.onclick = sendMessage;
+
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendMessage('user', text);
+      input.value = '';
+      input.style.height = 'auto';
+      input.disabled = true;
+      sendBtn.disabled = true;
+
+      const typingId = addTypingIndicator();
+
+      try {
+        const response = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_input: text })
+        });
+
+        const data = await response.json();
+        removeElement(typingId);
+
+        if (data.error) {
+          appendMessage('bot', `Error: ${data.error}`, true);
+        } else {
+          appendMessage('bot', data.reply);
+        }
+      } catch (err) {
+        removeElement(typingId);
+        appendMessage('bot', "Connection lost. Is your Python server running?", true);
+      } finally {
+        input.disabled = false;
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    }
+
+    function appendMessage(sender, text, isError = false) {
+      const wrapper = document.createElement('div');
+      wrapper.className = `msg-wrapper ${sender}`;
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `msg ${sender} ${isError ? 'error' : ''}`;
+      msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+      wrapper.appendChild(msgDiv);
+      chatBox.appendChild(wrapper);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function addTypingIndicator() {
+      const id = 'typing-' + Date.now();
+      const wrapper = document.createElement('div');
+      wrapper.className = 'msg-wrapper bot';
+      wrapper.id = id;
+      wrapper.innerHTML = `<div class="msg bot typing"><span></span><span></span><span></span></div>`;
+      chatBox.appendChild(wrapper);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return id;
+    }
+
+    function removeElement(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+  </script>
+</body>
+</html>
