@@ -1,4 +1,4 @@
-# 🪞 AI Twin — Mukeshwaran's Digital Clone
+# 🪞 AI Twin — A Digital Clone
 
 **AI Twin** is a personal AI chatbot that mimics your personality, voice, and memories. Feed it your personal Q&A and life experiences, and it will respond to people as *you* — using your tone, knowledge, and style.
 
