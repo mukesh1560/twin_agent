@@ -185,7 +185,7 @@ def chat():
     # 2. Normal Chat Logic
     context = get_context(user_input)
     system_prompt = f"""
-    You are Mukeshwaran's AI Twin. 
+    You are User's AI Twin. 
     Use the following memories to respond in his voice:
     {context}
     
